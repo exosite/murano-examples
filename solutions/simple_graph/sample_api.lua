@@ -11,3 +11,5 @@ if true then
 else
   http_error(403, response)
 end
+--#ENDPOINT GET /_init
+User.createRole({role_id = "dev", parameter = {{name = "sn"}}})
