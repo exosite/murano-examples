@@ -1,0 +1,10 @@
+{
+  "default_page": "index.html",
+  "file_dir": "public",
+  "custom_api": "sample_api.lua",
+  "event_handler": {
+    "device": {
+      "datapoint": "event_handler/product.lua"
+    }
+  }
+}
