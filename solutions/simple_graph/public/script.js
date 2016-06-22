@@ -1,10 +1,15 @@
 $(function() {
 
-		var data = [];  
+		//REPLACE DEVICE UNIQUE IDENTIFIER / SERIAL NUMBER HERE
+		var myDevice = 'FDA28A7FCF5C';
+
+		//REPLACE WITH FULL APP DOMAIN IF RUNNING LOCALLY, OTHEWISE LEAVE AS "/"
+    var app_domain = '/';
+
+		var data = [];
 		var updateInterval = 1000;
-    var myDevice = 'FDA28A7FCF5C';
-    var red_color = '#990033'
-    
+		var red_color = '#990033';
+
     var graph_options = {
         series: {
             lines: { show: true, lineWidth: 1, fill: false, fillColor: "rgba(65, 196, 220, 0.2)"},
@@ -20,17 +25,17 @@ $(function() {
         legend: { position: "nw" },
         colors: ["#41C4DC","#FF5847","#FFC647", "#5D409C", "#BF427B","#D5E04D" ]
 		};
-  
+
     $("#appstatus").text('Running');
     $("#appstatus").css('color', 'green');
     $("#appconsole").text('starting...');
     $("#appconsole").css('color', '#555555');
 		$("#specificdevice").append(myDevice);
-  
+
     function fetchData() {
 				console.log('fetching data from Murano');
         $("#appconsole").text('Fetching Data From Server...');
-				
+
         function onDataReceived(newdata) {
           $("#appstatus").text('Running');
           $("#appstatus").css('color', 'green');
@@ -58,11 +63,11 @@ $(function() {
                   units: "F"
               });
           }
-					$.plot("#placeholder", data_to_plot, graph_options);			
+					$.plot("#placeholder", data_to_plot, graph_options);
           setTimeout(fetchData, updateInterval);
           $("#appconsole").text('waiting');
 				}
-      
+
         function onError( jqXHR, textStatus, errorThrown) {
           console.log('error: ' + textStatus + ',' + errorThrown);
           $("#appconsole").text('No Server Response');
@@ -70,9 +75,9 @@ $(function() {
           $("#appstatus").css('color', red_color);
           setTimeout(fetchData, updateInterval+3000);
         }
-      
+
 				$.ajax({
-					url: "https://smartlightbulbmike02.apps.exosite-dev.io/admin/lightbulb/"+myDevice,
+					url: app_domain+"admin/lightbulb/"+myDevice,
 					type: "GET",
 					dataType: "json",
 					success: onDataReceived,
@@ -87,10 +92,10 @@ $(function() {
           }
           ,timeout: 10000
         });
-      
+
 			}
-      
-		 
+
+
 		// Set up the control widget
 
 		$("#updateInterval").val(updateInterval).change(function () {
