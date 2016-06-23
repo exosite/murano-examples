@@ -3,7 +3,9 @@ local sn = tostring(request.parameters.sn)
 
 if true then
   local data = {}
-  out = Timeseries.query({epoch='ms', q = 'SELECT value FROM temperature,humidity,'.. sn ..' LIMIT 200'})
+  out = Timeseries.query({
+    epoch='ms',
+    q = 'SELECT value FROM temperature,humidity,'.. sn ..' WHERE time > now() - 30m LIMIT 10000'})
   data['timeseries'] = out
   return data
 else
