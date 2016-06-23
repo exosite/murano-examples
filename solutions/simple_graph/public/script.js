@@ -12,17 +12,22 @@ $(function() {
 
     var graph_options = {
         series: {
-            lines: { show: true, lineWidth: 1, fill: false, fillColor: "rgba(65, 196, 220, 0.2)"},
-            points: { show: false, radius: 0.2, fillColor: "#41C4DC" }
+            lines: { show: true, lineWidth: 1.5, fill: 0.1},
+            points: { show: true, radius: 0.7, fillColor: "#41C4DC" }
         },
+				legend: {
+					position: "nw",
+					backgroundColor: "#66666",
+					backgroundOpacity: 0.7
+				},
         yaxis: {
           min: 0,
           max: 100
         },
         xaxis: {
-          mode: "time"
+          mode: "time",
+					timeformat: "%I:%M %p"
         },
-        legend: { position: "nw" },
         colors: ["#41C4DC","#FF5847","#FFC647", "#5D409C", "#BF427B","#D5E04D" ]
 		};
 
@@ -49,16 +54,19 @@ $(function() {
 					  var data = newdata.timeseries.results[0].series[j].values;
             var friendly = newdata.timeseries.results[0].series[j].name;
             var units = "";
+						var last_val = newdata.timeseries.results[0].series[j].values[data.length-1][1];
             if (friendly == "temperature")
             {
               units = "F";
+							friendly = "Temperature";
             }
             else if (friendly == "humidity")
             {
               units = "%";
+							friendly = "Humidity";
             }
             data_to_plot.push({
-                  label: friendly + ' ' + units,
+                  label: friendly + ' - '+ last_val + units,
                   data: data,
                   units: "F"
               });
@@ -104,8 +112,8 @@ $(function() {
 				updateInterval = +v;
 				if (updateInterval < 1) {
 					updateInterval = 1;
-				} else if (updateInterval > 2000) {
-					updateInterval = 2000;
+				} else if (updateInterval > 20000) {
+					updateInterval = 20000;
 				}
 				$(this).val("" + updateInterval);
 			}
