@@ -2,20 +2,25 @@
 
 body {
 	background: #DDDDDD;
-	font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;
-}
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 300;
+	/*font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;*/}
 
 a {	color: #069; }
 a:hover { color: #28b; }
 
 h2 {
 	margin-top: 15px;
-	font: normal 32px "omnes-pro", Helvetica, Arial, sans-serif;
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 300;
+	/*font: normal 32px "omnes-pro", Helvetica, Arial, sans-serif;*/
 }
 
 h3 {
 	margin-left: 30px;
-	font: normal 26px "omnes-pro", Helvetica, Arial, sans-serif;
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 300;
+	/*font: normal 26px "omnes-pro", Helvetica, Arial, sans-serif;*/
 	color: #666;
 }
 
@@ -29,7 +34,9 @@ button {
 }
 
 input {
-	font-size: 18px;
+	font-size: 15px;
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 300;
 }
 
 input[type=checkbox] {
