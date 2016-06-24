@@ -1,6 +1,7 @@
 <html>
 <head>
-  <link rel="stylesheet" href="style.css">
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <link rel="stylesheet" href="dark_style.css">
   <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.js"></script>
@@ -8,22 +9,41 @@
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400" rel="stylesheet">
 </head>
 <body>
-<div id="header">
-  <h2>Smart Light Bulb Sensor Data</h2>
-</div>
 
-<div id="content">
-
-  <div class="demo-container">
-    <div id="placeholder" class="demo-placeholder"></div>
+  <div id="header">
+    <h2>Connected Device Sensor Data</h2>
   </div>
 
-  <p></p>
-  <p id="specificdevice">Light Bulb: </p>
-  <p>Application Status: <span id="appstatus"> </span></p>
-  <p>Application Console: <span id="appconsole"> </span></p>
-  <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+  <div id="content">
+    <h3 >Device: <span id="currentdevice"></span></h3>
+    <div class="demo-container">
+      <div id="placeholder" class="demo-placeholder"></div>
+    </div>
 
-</div>
+    <p></p>
+    <table width="90%">
+      <col width="200px" />
+      <tr>
+        <td><p>Device: </p> </td>
+        <td><p><input id="specificdevice" type="text" value="" style="text-align: right; width:10em"></input><p></td>
+      </tr>
+      <tr>
+        <td><p>Time between updates:</p></td>
+        <td><p><input id="updateInterval" type="text" value="" style="text-align: right; width:10em"></input> milliseconds [0 = stop]</p></td>
+      </tr>
+      <tr>
+        <td><p>Time Window:</p></td>
+        <td><p><input id="timeWindow" type="text" value="" style="text-align: right; width:10em"></input> minutes</p></td>
+      </tr>
+      <tr>
+        <td><p>Application Status: </p></td>
+        <td><span id="appstatus"> </span></td>
+      </tr>
+      <tr>
+        <td><p>Application Console:</td>
+          <td> <span id="appconsole"> </span></p></td>
+        </tr>
+    </table>
+  </div>
 </body>
 </html>

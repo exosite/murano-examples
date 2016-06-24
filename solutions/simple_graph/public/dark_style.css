@@ -1,11 +1,11 @@
 * {	padding: 0; margin: 0; vertical-align: top; }
 
 body {
-	background: #111111;
+	background: #222736;
 	font-family: 'Source Sans Pro', sans-serif;
 	font-weight: 300;
 	/*font: 18px/1.5em "proxima-nova", Helvetica, Arial, sans-serif;*/
-	color: #666666;
+	color: #FFFFFF;
 }
 
 a {	color: #069; }
@@ -16,7 +16,7 @@ h2 {
 	font-family: 'Source Sans Pro', sans-serif;
 	font-weight: 300;
 	/*font: normal 32px "omnes-pro", Helvetica, Arial, sans-serif;*/
-	color: #555555;
+	color: #FFFFFF;
 }
 
 h3 {
@@ -24,12 +24,14 @@ h3 {
 	font-family: 'Source Sans Pro', sans-serif;
 	font-weight: 300;
 	/*font: normal 26px "omnes-pro", Helvetica, Arial, sans-serif;*/
-	color: #555555;
+	color: #FFFFFF;
 }
 
 p {
-	margin-top: 10px;
-	color: #777777
+	/*margin-top: 10px;*/
+	color: #FFFFFF
+	font-family: 'Source Sans Pro', sans-serif;
+	font-weight: 300;
 }
 
 button {
@@ -40,9 +42,12 @@ button {
 input {
 	font-size: 15px;
 	background-color: black;
-	color: #DDDDDD;
+	color: #FF921E;
 	font-weight: 300;
 	font-family: 'Source Sans Pro', sans-serif;
+	border-color:#555555;
+	border-width:1px;
+	border-style:ridge;
 }
 
 input[type=checkbox] {
@@ -61,7 +66,7 @@ input[type=checkbox] {
 	font-size: 42px;
 	font-weight: 300;
 	text-decoration: none;
-	color: #777777;
+	color: #41C4DC;
 }
 
 #content {
@@ -84,8 +89,8 @@ input[type=checkbox] {
 	height: 450px;
 	padding: 20px 15px 15px 15px;
 	margin: 15px auto 30px auto;
-	/*border: 1px solid #ddd;*/
-	background: #111111;
+	border: 1px solid #222222;
+	background: #222736;
 	/*
 	background: linear-gradient(#222222 0, #222 50px);
 	background: -o-linear-gradient(#222222 0, #222 50px);
@@ -111,4 +116,10 @@ input[type=checkbox] {
 
 .legend table {
 	border-spacing: 5px;
+	color: #FFFFFF!important;
+}
+
+.flot-tick-label {
+	font-size:14px;
+	color: #ffffff;
 }
