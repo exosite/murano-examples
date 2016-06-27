@@ -1,8 +1,7 @@
 $(function() {
 
 		//REPLACE DEVICE UNIQUE IDENTIFIER / SERIAL NUMBER HERE
-		var myDevice = '000001';
-		//var myDevices = ['FDA28A7FCF5C','000001'];
+		var myDevice = '000001'; //default unique device identifier
 
 		//REPLACE WITH FULL APP DOMAIN IF RUNNING LOCALLY, OTHEWISE LEAVE AS "/"
     var app_domain = '/';
@@ -134,7 +133,7 @@ $(function() {
         }
 
 				$.ajax({
-					url: app_domain+"development/device/"+myDevice+"/data?window="+timeWindow,
+					url: app_domain+"development/device/data?identifier="+myDevice+"&window="+timeWindow,
 					type: "GET",
 					dataType: "json",
 					success: onDataReceived,
