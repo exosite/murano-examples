@@ -20,7 +20,6 @@ A device is sending data with resources `temperature` and `humidity` to your Pro
 3.
 
 #### Notes:
-1. IMPORTANT: This only supports one data source to be used.
 2. WARNING: This is reference code, there are no guarantees.  It's easy to change the code and have it break.  Tip: Use source control when editing!
 3. WARNING: Using code that refreshes often in browser windows carefully.  You can easily kill your browser.
 

@@ -1,8 +1,8 @@
 $(function() {
 
 		//REPLACE DEVICE UNIQUE IDENTIFIER / SERIAL NUMBER HERE
-		var myDevice = 'FDA28A7FCF5C';
-		var myDevices = ['FDA28A7FCF5C','000001'];
+		var myDevice = '000001';
+		//var myDevices = ['FDA28A7FCF5C','000001'];
 
 		//REPLACE WITH FULL APP DOMAIN IF RUNNING LOCALLY, OTHEWISE LEAVE AS "/"
     var app_domain = '/';
