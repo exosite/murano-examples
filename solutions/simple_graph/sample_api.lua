@@ -1,10 +1,13 @@
---#ENDPOINT GET /admin/lightbulb/{sn}
-local sn = tostring(request.parameters.sn)
-local window = tostring(request.parameters.window)
+--#ENDPOINT GET /development/test
+return 'hello world! \r\nI am a test Murano Solution API Route entpoint'
 
+--#ENDPOINT GET /development/device/{sn}/data
+local sn = tostring(request.parameters.sn)
+local window = tostring(request.parameters.window) -- in minutes,if ?window=<number>
 if true then
   local data = {}
   if window == nil then window = '30' end
+  -- Assumes temperature and humidity data device resources
   out = Timeseries.query({
     epoch='ms',
     q = "SELECT value FROM temperature,humidity WHERE sn = '" ..sn.."' AND time > now() - "..window.."m LIMIT 10000"})
@@ -13,12 +16,3 @@ if true then
 else
   http_error(403, response)
 end
---#ENDPOINT GET /admin/test
-return 'running'
---#ENDPOINT GET /admin/gettsdb
-local data = {}
-out = Timeseries.query({
-  epoch='ms',
-  q = 'SELECT value FROM *'})
-data['timeseries'] = out
-return data

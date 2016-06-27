@@ -134,7 +134,7 @@ $(function() {
         }
 
 				$.ajax({
-					url: app_domain+"admin/lightbulb/"+myDevice+"?window="+timeWindow,
+					url: app_domain+"development/device/"+myDevice+"/data?window="+timeWindow,
 					type: "GET",
 					dataType: "json",
 					success: onDataReceived,
