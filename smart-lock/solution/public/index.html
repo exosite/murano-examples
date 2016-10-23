@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+  </head>
+  <body>
+    Hello. I am your front door.
+    <input type="button" id="button-lock" value="lock">
+    <input type="button" id="button-unlock" value="unlock">
+    <script>
+      function update(sn, state) {
+        $.ajax({
+          method: 'POST',
+          url: '/lock/' + sn,
+          data: '{"state":"' + state + '"}',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          success: function() {
+            console.log('success!')
+          },
+          error: function(xhr, textStatus, errorThrown) {
+            alert(err);
+          }
+        });
+      }
+      $('#button-lock').click(function() {
+        update('001', 'locked');
+      });
+      $('#button-unlock').click(function() {
+        update('001', 'unlocked');
+      });
+    </script>
+  </body>
+</html>
+
