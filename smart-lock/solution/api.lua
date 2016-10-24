@@ -1,29 +1,98 @@
---#ENDPOINT GET /lock/
--- get the state of all the locks
+--#ENDPOINT POST /token
+-- create a token for this user, given request body
+-- {"email":"<email>", "password":"<password>"}
+
+local ret = User.getUserToken({
+	email = request.body.email,
+	password = request.body.password
+})
+if ret ~= nil and ret.status_code ~= nil then
+	-- fail. respond with the status_code and message
+	response.code = ret.status_code
+	response.message = ret.message
+else
+	-- pass
+	response.code = 200
+	-- put the token in a session ID cookie, for browsers
+	response.headers = {
+		["Set-Cookie"] = "sid=" .. tostring(ret)
+	}
+	-- ...and in the response body, for native mobile apps,
+	-- external servers, tools, etc.
+	response.message = {["token"] = ret}
+end
+
+--#ENDPOINT GET /user/lock/
+-- Get the state of all the locks a given user
+-- can access.
+local user = util.currentUser(request)
+if user ~= nil and user.id ~= nil then
+	locks = util.getUserAccessibleItems(user.id, 'lockID')
+  return locks
+else
+	response.code = 400
+	response.message = "Token invalid"
+end
+
+--#ENDPOINT GET /user/dwelling/
+-- Get the state of all the dwellings a given user
+-- can access.
+local user = util.currentUser(request)
+if user ~= nil and user.id ~= nil then
+	locks = util.getUserAccessibleItems(user.id, 'dwellingID')
+  return locks
+else
+	response.code = 400
+	response.message = "Token invalid"
+end
+
+--#ENDPOINT POST /lock/{lockID}
+-- This is a public endpoint
+-- send lock-command to a particular lock
 local pid = Config.solution().products[1]
--- Get the list of devices for this product
+local rid = Device.list({pid=pid})[1]['rid']
+
+local r = Device.write({
+  pid=pid, 
+  device_sn=request.parameters.lockID, 
+  ['lock-command']=request.body['lock-command']
+})
+
+return r
+
+--#ENDPOINT GET /lock/
+
+-- get all the locks. This illustrates a public endpoint 
+-- with no authentication and therefore no associated user
+
+-- assume only only one product associated with
+-- this solution.
+local pid = Config.solution().products[1]
+
+-- get the list of devices for this product
 local devices = Device.list({pid=pid})
 local response = {}
 for k, device in pairs(devices) do
+	device.state = util.getStates('lockID', device.sn)
+	-- this is deprecated
+	device.rid = nil
+	-- for consistency, match output of getUserAccessibleItems
+	device.lockID = device.sn
+	device.sn = nil
+	-- ...except role_id, which doesn't make sense here
+	
 	table.insert(response, device)
 end
-return response
+return devices
+
 
 --#ENDPOINT GET /setup
+-- This endpoint is called when the solution is first created.
+-- For demonstration it creates some sample users, roles,
+-- and device permissions
 
 -- collect results in a table for debugging
 local t = {}
-
--- create sample endpoint permissions
-table.insert(t, User.createPermission({
-	method="GET",
-	end_point="/lock/{lockID}"
-}))
-table.insert(t, User.createPermission({
-	method="GET",
-	end_point="/dwelling/{dwellingID}"
-}))
-
 
 -- create sample users
 table.insert(t, User.activateUser({
@@ -41,16 +110,17 @@ table.insert(t, User.activateUser({
 	})
 }))
 
+-- get user ids
+local users = User.listUsers()
+local judy = users[1]
+local frank = users[2]
 
 -- create roles
-table.insert(t, User.deleteRole({role_id="owner"}))
-table.insert(t, User.deleteRole({role_id="guest"}))
-
 table.insert(t, User.createRole({
 	role_id='owner',
 	parameter={
-		{ name='lockID'},
-		{ name = 'dwellingID'},
+		{ name = 'lockID'},
+		{ name = 'dwellingID'}
 	}
 }))
 table.insert(t, User.createRole({
@@ -60,27 +130,10 @@ table.insert(t, User.createRole({
 	}
 }))
 
--- associate permission
-table.insert(t, User.addRolePerm({
-	role_id = 'owner',
-	body = {
-		{ method = 'GET', end_point = '/lock/{lockID}' },
-		{ method = 'GET', end_point = '/dwelling/{dwellingID}' }
-	}
-}))
-table.insert(t, User.addRolePerm({
-	role_id = 'guest',
-	body = {
-		-- guest may only be assigned specific locks, 
-		-- not dwelling-wide access
-		{ method = 'GET', end_point = '/lock/{lockID}' }
-	}
-}))
-
 -- assign roles to users (including parameters
 -- for the role's permissions)
 table.insert(t, User.assignUser({
-	id = 3,
+	id = judy.id,
 	roles = {
 		{
 			role_id = 'owner',
@@ -95,7 +148,7 @@ table.insert(t, User.assignUser({
 				},
 				{
 					name = 'dwellingID',
-					value = 1
+					value = '1'
 				}			
 			}
 		}		
@@ -104,7 +157,7 @@ table.insert(t, User.assignUser({
 
 -- frank gets guest access to lock 001
 table.insert(t, User.assignUser({
-	id = 4, -- frank
+	id = frank.id,
 	roles = {
 		{
 			role_id = 'guest',
@@ -119,77 +172,50 @@ table.insert(t, User.assignUser({
 }))
 
 -- dump out the results
-table.insert(t, User.listUsers())
-table.insert(t, User.listPerms())
+table.insert(t, users)
 table.insert(t, User.listRoles())
 table.insert(t, User.listUserRoles({
-	id=3
+	id=judy.id
 }))
 table.insert(t, User.listUserRoles({
-	id=4
+	id=frank.id
 }))
 
--- check permissions
--- this one should be true
-table.insert(t, User.hasUserPerm({
-	id = 3,
-	perm_id = 'GET%2Flock%2F%7BlockID%7D', -- urlencode('GET/lock/{lockID}'),
-	parameters = { 'lockID::001' }
+-- this should be true
+table.insert(t, "tests (every other line below should be 'OK')")
+-- expect ok (judy has access to lock 001)
+table.insert(t, User.hasUserRoleParam({
+	id = judy.id, role_id = 'owner', parameter_name = 'lockID', parameter_value = '001'
 }))
--- this one should be false (no dwelling 3)
-table.insert(t, User.hasUserPerm({
-	id = 3,
-	perm_id = 'GET%2Fdwelling%2F%7BdwellingID%7D', -- urlencode('GET/dwelling/{dwellingID}'),
-	parameters = { 'dwellingID::3' }
+-- expect error (frank is not owner of lock 001)
+table.insert(t, User.hasUserRoleParam({
+	id = frank.id, role_id = 'owner', parameter_name = 'lockID', parameter_value = '001'
 }))
--- this one should be false (user 4 has no permissions to lock 001)
-table.insert(t, User.hasUserPerm({
-	id = 4,
-	perm_id = 'GET%2Flock%2F%7BlockID%7D', -- urlencode('GET/lock/{lockID}'),
-	parameters = { 'lockID::001' }
+-- expect ok (judy has access to lock 002)
+table.insert(t, User.hasUserRoleParam({
+	id = judy.id, role_id = 'owner', parameter_name = 'lockID', parameter_value = '002'
+}))
+-- expect error (judy does not have access to lock 999)
+table.insert(t, User.hasUserRoleParam({
+	id = judy.id, role_id = 'owner', parameter_name = 'lockID', parameter_value = '999'
+}))
+-- expect "OK" (frank has guest access to lock 001)
+table.insert(t, User.hasUserRoleParam({
+	id = frank.id, role_id = 'guest', parameter_name = 'lockID', parameter_value = '001'
+}))
+-- expect error (frank has no dwellingID param)
+table.insert(t, User.hasUserRoleParam({
+	id = frank.id, role_id = 'guest', parameter_name = 'dwellingID', parameter_value = 1
+}))
+-- expect "OK"
+table.insert(t, User.hasUserRoleParam({
+	id = judy.id, role_id = 'owner', parameter_name = 'dwellingID', parameter_value = 1
+}))
+-- expect error
+table.insert(t, User.hasUserRoleParam({
+	id = judy.id, role_id = 'owner', parameter_name = 'dwellingID', parameter_value = 2
 }))
 
 return t
 
---#ENDPOINT GET /test
-local r = User.createPermission({
-	method='GET',
-  end_point='info/{sn}'
-})
-local t = User.listPerms()
-table.insert(t, r)
-return t
 
---#ENDPOINT POST /lock/{sn}
--- control a particular lock
-local pid = Config.solution().products[1]
-local rid = Device.list({pid=pid})[1]['rid']
-
-local r = Device.write({
-  pid=pid, 
-  device_sn=request.parameters.sn, 
-  ['lock-command']=request.body['lock-command']
-})
-
-return rid
-
---#ENDPOINT PUT /user/{email}
-local newUser = {
-  email = request.parameters.email,
-  name = request.parameters.email,
-  password = request.body.password
-}
-local ret = User.createUser(newUser)
-if ret.status_code ~= nil then
-  response.code = ret.status_code
-  response.message = ret.message
-else
-  local ret = User.activateUser({code = request.parameters.code})
-  if ret == 'OK' then
-    response.code = 200
-    response.message = newUser
-  else
-    response.code = ret.status_code
-    response.message = ret.message
-  end
-end

@@ -11,7 +11,7 @@
         $.ajax({
           method: 'POST',
           url: '/lock/' + sn,
-          data: '{"state":"' + state + '"}',
+          data: '{"lock-command":"' + state + '"}',
           headers: {
             'Content-Type': 'application/json'
           },

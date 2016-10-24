@@ -3,6 +3,7 @@
   "file_dir": "public",
   "custom_api": "api.lua",
   "modules": {
+    "util": "modules/util.lua",
     "debug": "modules/debug.lua"
   },
   "event_handler": {
