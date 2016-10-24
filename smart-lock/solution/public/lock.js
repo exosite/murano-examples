@@ -1,5 +1,6 @@
 $(function(){
 	var muranoToken = null;
+	var allLocks = [];
 
 	/* render the locks on the screen */
 	function render(locks) {
@@ -31,7 +32,6 @@ $(function(){
       },
       success: function(data) {
 				muranoToken = data.token;
-				console.log('Signed in. Token is ', muranoToken);
 				$('#nav-signedin-message').html('Signed in as <b>' + data.name + '</b> ');
 				$('.nav-signedout').hide();
 				$('.nav-signedin').show();
@@ -55,15 +55,36 @@ $(function(){
 		$('.nav-signedin').hide();
 	}
 
-	/* Get all of the locks using the authentication-free
-     endpoint. */
-	function getLocks(sn, state) {
+	/* Update the locks with a particular message
+     e.g. one received over a websocket. */
+	function updateLocks(message) {
+		// message looks like:
+		// {"battery-percent":"1","lockID":"001"}
+		if (!_.has(message, 'lockID')) {
+			// this may be the initial {"status":"ok"} message
+			return;
+		}
+		var lockID = message.lockID;
+		// remove lockID
+		message = _.omit(message, ['lockID']);
+		// update the state with the rest of the message
+		_.each(allLocks, function(lock) {
+			if (lock.lockID === lockID) {
+				_.assign(lock.state, message);
+			}
+		});
+	}
+
+	/* Get all of the locks, using the authentication-free
+     endpoint if no token is set, otherwise then authenticated
+		 endpoint. */
+	function getLocks() {
 		var params = {
 			method: 'GET',
 			url: '/lock/',
-			success: function(locks) {
-				console.log('getLocks:', locks);
-				render(locks);
+			success: function(data) {
+				allLocks = data;	
+				render(allLocks);
 			},
 			error: function(xhr, textStatus, errorThrown) {
 				alert(errorThrown)
@@ -102,6 +123,16 @@ $(function(){
     });
   }
 
+	var socket;
+	function initWebsocket() {
+		socket = new WebSocket("wss://" + location.host + "/notify");
+		socket.onmessage = function (event) {
+			var message = JSON.parse(event.data);
+			updateLocks(message);
+			render(allLocks);
+		}
+	}
+
 	// update state
 	getLocks();
 	
@@ -123,5 +154,8 @@ $(function(){
 	$('#sign-out').click(function() {
 		signOut();
 	});
+
+	// start listening for notifications on the websocket
+	initWebsocket();
 
 });

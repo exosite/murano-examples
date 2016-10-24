@@ -35,3 +35,14 @@ util.setStates('lockID', data.device_sn, {
   data.alias, data.value[2], 
   'last_timestamp', data.timestamp
 })
+
+-- notify UI of an update
+-- get websocket ids
+local sockets = Websocket.list()
+for k, socket in pairs(sockets) do
+	-- send update on each socket
+	Websocket.send({
+		socket_id = socket,
+		message = to_json({lockID = data.device_sn, [data.alias] = data.value[2]})
+	})
+end

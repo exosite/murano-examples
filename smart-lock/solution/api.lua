@@ -93,8 +93,13 @@ for k, device in pairs(devices) do
 end
 return devices
 
+--#ENDPOINT WEBSOCKET /notify
+-- subscribe for notifications when devices change
+response.message = {
+	status = 'ok'
+}
 
---#ENDPOINT GET /setup
+--#ENDPOINT GET /_init
 -- This endpoint is called when the solution is first created.
 -- For demonstration it creates some sample users, roles,
 -- and device permissions

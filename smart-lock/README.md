@@ -2,7 +2,8 @@
 
 This is a self-contained example of a smart lock device, intended to provide developers an example of using Exosite's Murano platform for some common use cases. It contains code simulating both the smart lock firmware, the cloud event handlers, and the application UI. Here's a demo:
 
-TODO
+![animated demo](https://github.com/exosite/murano-examples/tree/master/smart-lock/images/smart-lock.gif "")
+
 
 It is designed to illustrate the use of Murano to build connected products and applications, including:
 
@@ -20,9 +21,11 @@ TODO
 
 ## TODO
 
-- add `_init` that sets up users, dwellings
-- add blessings to simulator to show state and requests/responses 
+- locked/unlocked graphic
+- show detailed requests/responses in simulator for debugging
+- test local debugging 
 - make simulator load in eeprom (product/device identities that are hard coded)
 - make simulator save current state (e.g. battery) 
 - pull in a simple UI framework (e.g. bootstrap)
 - port simulator to Electron to get native Windows/OSX/Linux installers
+- authenticate websocket

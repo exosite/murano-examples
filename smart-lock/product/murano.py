@@ -60,7 +60,11 @@ class Murano():
                     self.device_id))
             r.raise_for_status()
 
+            # save to object
             self.cik = r.text
+
+            # save to file
+            self.save_cik(self.cik)
 
     def write(self, writes):
         '''write Murano device resource.
