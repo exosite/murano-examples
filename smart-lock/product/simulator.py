@@ -1,10 +1,15 @@
 # simulate an Internet-connected door lock using the Murano platform
+import sys
 import json
 
 from murano import Murano
 
-PRODUCT_ID = 'do5pjwoazfsf9a4i'
-DEVICE_ID = '001'
+if len(sys.argv) < 3:
+    print('Usage:')
+    print('   python ./simulator <product_id> <device_id>');
+
+PRODUCT_ID = sys.argv[1] # 'do5pjwoazfsf9a4i'
+DEVICE_ID = sys.argv[2]  # '001'
 
 def show_state():
     print('Product ID: {0} Device ID: {1}'.format(PRODUCT_ID, DEVICE_ID))
@@ -35,8 +40,8 @@ def print_state():
     print('---------------------------------')
     print('product id:      {0}'.format(PRODUCT_ID))
     print('device id:       {0}'.format(DEVICE_ID))
-    print('lock_state:      {0}'.format(lock_state))
-    print('battery_percent: {0}'.format(battery_percent))
+    print('lock_state:      {0}'.format(State.lock_state))
+    print('battery_percent: {0}'.format(State.battery_percent))
     print('---------------------------------')
 
 print('Waiting for lock commands from Murano')
@@ -44,7 +49,8 @@ print('Press Ctrl+C to quit')
 timestamp = None
 while True:
     print_state()
-    State.battery_percent -= 1
+    if State.battery_percent > 1:
+        State.battery_percent -= 1
 
     # long poll on the "locked" resource
     value, timestamp = murano.read_longpoll(
@@ -54,7 +60,7 @@ while True:
 
     writes = {'battery-percent': State.battery_percent}
 
-    if value != lock_state:
+    if value is not None and value != State.lock_state:
         State.lock_state = value
         writes['lock-state'] = State.lock_state
 

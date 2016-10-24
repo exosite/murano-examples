@@ -1,35 +1,87 @@
 <html>
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- jquery -->
     <script src="//code.jquery.com/jquery-3.1.1.min.js"></script>
+		<!-- lodash, for templates -->
+		<script src="https://cdn.jsdelivr.net/lodash/4.16.4/lodash.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/darkly/bootstrap.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body>
-    Hello. I am your front door.
-    <input type="button" id="button-lock" value="lock">
-    <input type="button" id="button-unlock" value="unlock">
-    <script>
-      function update(sn, state) {
-        $.ajax({
-          method: 'POST',
-          url: '/lock/' + sn,
-          data: '{"lock-command":"' + state + '"}',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          success: function() {
-            console.log('success!')
-          },
-          error: function(xhr, textStatus, errorThrown) {
-            alert(err);
-          }
-        });
-      }
-      $('#button-lock').click(function() {
-        update('001', 'locked');
-      });
-      $('#button-unlock').click(function() {
-        update('001', 'unlocked');
-      });
-    </script>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Smart Lock <span class="glyphicon glyphicon-lock" aria-hidden="true"></span></a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <!-- <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li> -->
+          </ul>
+					<form class="navbar-form navbar-right" id="nav-login" role="search">
+							<div class="form-group nav-signedin" style="display: none;">
+								<span id="nav-signedin-message">Signed in as...</span>
+								<button type="button" class="btn btn-default" id="sign-out">Sign Out</button>
+							</div>
+
+							<div class="form-group nav-signedout">
+								<a id="login-frank" data-toggle="tooltip" data-placement="bottom" title="Frank's credentials" href="javascript: void(0);"><img src="/assets/frank.png"></img></a>
+								<a id="login-judy" data-toggle="tooltip" data-placement="bottom" title="Judy's credentials" href="javascript: void(0);"><img src="/assets/judy.png"></img></a>
+							</div>
+							<div class="form-group nav-signedout">
+									<input type="text" class="form-control" name="email" id="email" placeholder="Email">
+							</div>
+							<div class="form-group nav-signedout">
+									<input type="password" class="form-control" name="password" id="password" placeholder="Password">
+							</div>
+							<button type="button" class="btn btn-default nav-signedout" id="sign-in">Sign In</button>
+					</form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    <div class="container-fluid">
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<div class="alert alert-warning nav-signedout" role="alert">WARNING: Showing all locks in the system by default. Log in to see user view.</div>
+				</div>
+			</div>
+			<div class="row locks" id="locks">
+			</div>
+			<a style="display: none" href="https://icons8.com/web-app/20749/Circled-User-Male">Circled user male icon credits</a>
+    </div>
+		<script type="text/template" id="lock-template">     
+<% _.forEach(locks, function(lock) { %>
+	<div class="lock col-md-4">
+		<div class="panel">
+			<div class="panel-body">
+				<h3><%- lock.state.name %></h3>
+				<div>id: <%- lock.lockID %></div>
+				<% if (lock.status) { %> <div>status: <%- lock.status %></div> <% } %>
+				<% if (lock.role_id) { %> <div>role_id: <%- lock.role_id %></div> <% } %>
+				<% if (lock.state['lock-state']) { %> <div><%- lock.state['lock-state'] %></div> <% } %>
+				<% if (lock.state['battery-percent']) { %> <div>battery: <%- lock.state['battery-percent'] %>%</div> <% } %>
+				<% if (lock.state['lock-state'] === 'locked') { %>
+				<input data-id="<%- lock.lockID %>" type="button" class="btn button-unlock" value="unlock">
+				<% } else { %>
+				<input data-id="<%- lock.lockID %>" type="button" class="btn button-lock" value="lock">
+				<% } %>
+			</div>
+		</div>
+	</div>
+<% }) %>
+		</script>
+    <script src="/lock.js"></script>
   </body>
 </html>
 

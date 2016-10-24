@@ -19,7 +19,15 @@ else
 	}
 	-- ...and in the response body, for native mobile apps,
 	-- external servers, tools, etc.
-	response.message = {["token"] = ret}
+
+  local user = User.getCurrentUser({token = ret})
+  if user ~= nil and user.id ~= nil then
+		user.token = ret
+		response.message = user
+	else
+		response.code = user.status
+		response.message = user
+	end
 end
 
 --#ENDPOINT GET /user/lock/
@@ -109,6 +117,10 @@ table.insert(t, User.activateUser({
 		password="frank-password1"
 	})
 }))
+
+-- create initial lock states
+table.insert(t, util.setStates('lockID', '001', { 'name', 'Home' }))
+table.insert(t, util.setStates('lockID', '002', { 'name', 'Studio' }))
 
 -- get user ids
 local users = User.listUsers()

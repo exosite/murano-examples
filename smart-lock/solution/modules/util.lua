@@ -22,16 +22,19 @@ end
 -- in headers
 util.currentUserFromHeaders = function (headers)
 	local token = nil
-  if type(headers.cookie) == "string" then
-		local _, _, token = string.find(headers.cookie, "sid=([^;]+)")
-		if type(sid) ~= "string" then
-			return nil
-		end
-	else 
-		if type(headers.token) ~= "string" then
-			return nil
-		end
+	if type(headers.token) == "string" then
+		-- the caller passed a token header. Use that.
 		token = headers.token
+	else
+		-- check for the token in the session in a cookie
+		if type(headers.cookie) == "string" then
+			local _, _, token = string.find(headers.cookie, "sid=([^;]+)")
+			if type(token) ~= "string" then
+				return nil
+			end
+		else 
+			return nil
+		end
   end
   local user = User.getCurrentUser({token = token})
   if user ~= nil and user.id ~= nil then
@@ -48,7 +51,7 @@ util.getStates = function(parm_name, parm_value)
 	return Keystore.command({
 		command = 'hgetall',
 		key = 'state:' .. parm_name .. ':' .. parm_value
-	})
+	}).value
 end
 
 -- set one or more states for a given lock or dwelling
@@ -80,7 +83,7 @@ util.getUserAccessibleItems = function(user_id, parameter_name)
 	function addItemsFromParameters(role)
 		for k, parameter in pairs(role.parameters) do
 			if parameter_name == nil or parameter.name == parameter_name then
-				local state = util.getStates(parameter.name, parameter.value).value
+				local state = util.getStates(parameter.name, parameter.value)
 				local item = {
 					role_id = role.role_id,
 					[parameter.name] = parameter.value,
