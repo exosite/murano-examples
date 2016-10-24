@@ -1,6 +1,6 @@
 # Murano Lock Example
 
-This is a self-contained example of a smart lock device, intended to provide developers an example of using Exosite's Murano platform for some common use cases. It contains code simulating both the smart lock firmware, the cloud event handlers, and the application UI. [See it in action.](https://github.com/exosite/murano-examples/tree/master/smart-lock)
+This is a self-contained example of a smart lock device, intended to provide developers an example of using Exosite's Murano platform for some common use cases. It contains code simulating both the smart lock firmware, the cloud event handlers, and the application UI. [See it in action.](https://github.com/exosite/murano-examples/blob/master/smart-lock/images/smart-lock.gif)
 
 It is designed to illustrate the use of Murano to build connected products and applications, including:
 
