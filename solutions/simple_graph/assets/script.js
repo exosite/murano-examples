@@ -58,50 +58,60 @@ $(function() {
           //console.log(series)
 					console.log(newdata);
 
-					console.log('valid data return for: '+myDevice);
-          for (j = 1; j < newdata.timeseries.columns.length; j++)
+          if (jQuery.isEmptyObject(newdata.timeseries.values))
           {
-					  var data = [];
-					  var raw_data = newdata.timeseries.values
-            var friendly = newdata.timeseries.columns[j];
-            var units = "";
-						var last_val;
-
-            if (friendly == "temperature")
-            {
-              units = "F";
-							friendly = "Temperature";
-            }
-            else if (friendly == "humidity")
-            {
-              units = "%";
-							friendly = "Humidity";
-            }
-
-            console.log(raw_data, j);
-
-            // reformat data for flot
-            for (var i = raw_data.length - 1; i >= 0; i--) {
-              if (raw_data[i][j] != null)
-                data.unshift([raw_data[i][0],raw_data[i][j]])
-            }
-
-            // only push if data returned
-            if (data.length > 0) {
-              last_val = data[data.length-1]
-
-              data_to_plot.push({
-                    label: friendly + ' - '+ last_val + ' ' +units,
-                    data: data,
-                    units: units
-                });
-            }
-
+            //Database error
+            console.log('no data in selected window, check device')
+            $("#appconsole").text('No data found in window for this device');
+            $("#placeholder").text('Graph: Data Not Found for: '+myDevice);
           }
-					$("#placeholder").text('');
-					$.plot("#placeholder", data_to_plot, graph_options);
-					$("#appconsole").text('Data Plotted');
-					$("#appconsole").css('color', '#555555');
+          else
+          {
+
+  					console.log('valid data return for: '+myDevice);
+            for (j = 1; j < newdata.timeseries.columns.length; j++)
+            {
+  					  var data = [];
+  					  var raw_data = newdata.timeseries.values
+              var friendly = newdata.timeseries.columns[j];
+              var units = "";
+  						var last_val;
+
+              if (friendly == "temperature")
+              {
+                units = "F";
+  							friendly = "Temperature";
+              }
+              else if (friendly == "humidity")
+              {
+                units = "%";
+  							friendly = "Humidity";
+              }
+
+              console.log(raw_data, j);
+
+              // reformat data for flot
+              for (var i = raw_data.length - 1; i >= 0; i--) {
+                if (raw_data[i][j] != null)
+                  data.unshift([raw_data[i][0],raw_data[i][j]])
+              }
+
+              // only push if data returned
+              if (data.length > 0) {
+                last_val = data[data.length-1]
+
+                data_to_plot.push({
+                      label: friendly + ' - '+ last_val + ' ' +units,
+                      data: data,
+                      units: units
+                  });
+              }
+            }
+            $("#placeholder").text('');
+            $.plot("#placeholder", data_to_plot, graph_options);
+            $("#appconsole").text('Data Plotted');
+            $("#appconsole").css('color', '#555555');
+          }
 
 					if (updateInterval != 0)
 						{setTimeout(fetchData, updateInterval);}
