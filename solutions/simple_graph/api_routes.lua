@@ -31,39 +31,76 @@ else
   return 'Getting Key Value Raw Data for: Device Identifier: '..identifier..'\r\n'..to_json(resp)
 end
 
---#ENDPOINT GET /development/storage/timeseries
--- Description: Show current time-series data for a specific unique device
--- Parameters: ?identifier=<uniqueidentifier>
-local identifier = tostring(request.parameters.identifier)
-
-if true then
-  local data = {}
-  -- Assumes temperature and humidity data device resources
-  out = Timeseries.query({
-    epoch='ms',
-    q = "SELECT value FROM temperature,humidity WHERE identifier = '" ..identifier.."' LIMIT 20"})
-  data['timeseries'] = out
-
-  return 'Getting Last 20 Time Series Raw Data Points for: '..identifier..'\r\n'..to_json(out)
-else
-  http_error(403, response)
-end
-
-
 --#ENDPOINT GET /development/device/data
 -- Description: Get timeseries data for specific device
 -- Parameters: ?identifier=<uniqueidentifier>&window=<number>
 local identifier = tostring(request.parameters.identifier) -- ?identifier=<uniqueidentifier>
-local window = tostring(request.parameters.window) -- in minutes,if ?window=<number>
+local window = tonumber(request.parameters.window) -- in minutes,if ?window=<number>
 if true then
   local data = {}
-  if window == nil then window = '30' end
+  if window == nil then window = 30 end
   -- Assumes temperature and humidity data device resources
-  out = Timeseries.query({
-    epoch='ms',
-    q = "SELECT value FROM temperature,humidity WHERE identifier = '" ..identifier.."' time > now() - "..window.."m LIMIT 5000"})
+  local metrics = {"temperature", "humidity"}
+  local tags = {identity = identifier}
+  local out = Tsdb.query({
+    metrics = metrics,
+    tags = tags,
+    relative_start = "-"..tostring(window).."m",
+    epoch = "ms",
+    fill = "null",
+  })
   data['timeseries'] = out
   return data
 else
-  http_error(403, response)
+  response.message = "Conflict - Identifier Incorrect"
+  response.code = 404
+  return
 end
+
+--#ENDPOINT POST /development/device/simulate
+-- Description: Get timeseries data for specific device
+-- Parameters: ?identifier=<identifier> (like "000001")
+--             &pid=<pid>               (like "j7oac150bxzuxr")
+--             &alias=<alias>           (like "temperature")
+--             &value=<value>           (like "37")
+
+local data = {}
+data.device_sn = tostring(request.parameters.identifier)
+data.value = {'live', tostring(request.parameters.value)}
+data.alias = tostring(request.parameters.alias)
+data.timestamp = tostring(request.parameters.timestamp)
+data.pid = tostring(request.parameters.pid)
+
+-- PUT DATA INTO TIME SERIES DATABASE STORAGE:
+-- ============================
+-- Write All Device Resource Data to timeseries database
+local metrics = {[data.alias] = data.value[2]}
+local tags = {pid = data.pid,identity = data.device_sn}
+local out = Tsdb.write({
+  metrics = metrics,
+  tags = tags
+})
+
+-- PUT DATA INTO KEY VALUE STORE:
+-- ============================
+-- Write All Device Resources incomiong data to key/value data store
+-- Check to see what data already exists
+local resp = Keystore.get({key = "identifier_" .. data.device_sn})
+
+-- Make sure each device has the following keys stored
+local value = {
+  temperature = "undefined",
+  humidity = "undefined",
+  uptime = "undefined",
+  state = "undefined"
+}
+if type(resp) == "table" and type(resp.value) == "string" then
+  value = from_json(resp.value) -- Decode from JSON to Lua Table
+end
+-- Add in other available data about this device / incoming data
+value[data.alias] = data.value[2]
+value["timestamp"] = data.timestamp/1000 -- add server's timestamp
+value["pid"] = data.vendor or data.pid
+-- Write data into key/value data store
+Keystore.set({key = "identifier_" .. data.device_sn, value = to_json(value)})
+
