@@ -6,5 +6,7 @@
     "device": {
       "datapoint": "service_handlers/product.lua"
     }
-  }
+  },
+  "version": "0.2.0",
+  "cors": ""
 }
