@@ -5,8 +5,11 @@
 -- PUT DATA INTO TIME SERIES DATABASE STORAGE:
 -- ============================
 -- Write All Device Resource Data to timeseries database
-Timeseries.write({
-  query = data.alias .. ",identifier=" .. data.device_sn .. " value=" .. data.value[2]
+local metrics = {[data.alias] = data.value[2]}
+local tags = {pid = data.pid,identity = data.device_sn}
+local out = Tsdb.write({
+  metrics = metrics,
+  tags = tags
 })
 
 -- PUT DATA INTO KEY VALUE STORE:
